@@ -1,4 +1,6 @@
 //this is main.dart
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -6,14 +8,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-//import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'toolbar.dart';
 import 'singinscreen.dart';
 import 'todo.dart';
 import 'todoitem.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 
 final addTodoKey = UniqueKey();
@@ -57,15 +58,42 @@ final filteredTodos = Provider<List<Todo>>((ref) {
 final currentTodo = Provider<Todo>((ref) => throw UnimplementedError());
 
 void main() async {
-    WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-    FirebaseUIAuth.configureProviders([
-    EmailAuthProvider(),
-    // ... other providers
-  ]);
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAuth.instance.signInAnonymously();
+  await createUserDocumentWithMerge();
   runApp(const ProviderScope(child: MyApp()));
+}
+Future<void> createUserDocumentWithMerge() async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final usersCollection = FirebaseFirestore.instance.collection('Users');
+      await usersCollection.doc(user.uid).set({
+        // Add your user data here
+        'lastLogin': DateTime.now(),
+      }, SetOptions(merge: true));
+    }
+  } catch (e, stackTrace) {
+    print('Error setting document in Firestore: $e');
+    print('StackTrace: $stackTrace');
+  }
+}
+Future<void> checkAndInitializeTodos(String userId) async {
+  final todosCollection = FirebaseFirestore.instance.collection('todos');
+  final userTodosSnapshot = await todosCollection.doc(userId).get();
+
+  if (!userTodosSnapshot.exists) {
+    // Initialize with default todos
+    final defaultTodos = TodoList().build();
+    for (final todo in defaultTodos) {
+      todosCollection.doc(userId).collection('userTodos').add({
+        'id': todo.id,
+        'description': todo.description,
+        'completed': todo.completed,
+      });
+    }
+  }
 }
 
 class MyApp extends StatelessWidget {

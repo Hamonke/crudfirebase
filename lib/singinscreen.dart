@@ -26,8 +26,7 @@ class _SignInScreenState extends State<SigningInScreen>  {
       ),
       body: MaterialApp(
         debugShowCheckedModeBanner: false ,
-        initialRoute: FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/profile',
-        routes: {
+initialRoute: FirebaseAuth.instance.currentUser == null || FirebaseAuth.instance.currentUser!.isAnonymous ? '/sign-in' : '/profile',        routes: {
           '/sign-in': (context) {
             return SignInScreen(
               auth: FirebaseAuth.instance,
