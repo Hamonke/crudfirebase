@@ -26,6 +26,9 @@ class Todo {
 
 /// An object that controls a list of [Todo].
 class TodoList extends Notifier<List<Todo>> {
+    void initializeWithFirestoreTodos(List<Todo> todos) {
+    state = todos;
+  }
   @override
   List<Todo> build() => [
         const Todo(id: 'todo-0', description: 'Buy cookies'),
