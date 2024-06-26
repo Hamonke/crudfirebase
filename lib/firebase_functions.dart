@@ -9,11 +9,11 @@ Future<void> createUserDocumentWithMerge(List<Todo> todos) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) {
     final usersCollection = FirebaseFirestore.instance.collection('Users');
-    final todosData = todos.map((todo) => {
-      'description': todo.description,
-      'id': todo.id,
-      'completed': todo.completed,
-    }).toList();
+    final todosData = [
+      {'description': 'Buy cookies', 'id': 'todo-0', 'completed': false},
+      {'description': 'Star Riverpod', 'id': 'todo-1', 'completed': false},
+      {'description': 'Have a walk', 'id': 'todo-2', 'completed': false},
+    ];
     await usersCollection.doc(user.uid).set({
       'todos': todosData,
       'lastLogin': DateTime.now(),
@@ -21,22 +21,6 @@ Future<void> createUserDocumentWithMerge(List<Todo> todos) async {
   }
 }
 
-Future<void> checkAndInitializeTodos(String userId) async {
-  final todosCollection = FirebaseFirestore.instance.collection('todos');
-  final userTodosSnapshot = await todosCollection.doc(userId).get();
-
-  if (!userTodosSnapshot.exists) {
-    // Initialize with default todos
-    final defaultTodos = TodoList().build();
-    for (final todo in defaultTodos) {
-      todosCollection.doc(userId).collection('userTodos').add({
-        'id': todo.id,
-        'description': todo.description,
-        'completed': todo.completed,
-      });
-    }
-  }
-}
 
 
 //for some reason when user is anonymous it is not able to load the todos from firestore

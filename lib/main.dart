@@ -21,7 +21,7 @@ final addTodoKey = UniqueKey();
 final activeFilterKey = UniqueKey();
 final completedFilterKey = UniqueKey();
 final allFilterKey = UniqueKey();
-final todoListProvider = NotifierProvider<TodoList, List<Todo>>(TodoList.new);
+final todoListProvider = StateNotifierProvider<TodoList, AsyncValue<List<Todo>>>((ref) => TodoList());
 final currentTodo = Provider<Todo>((ref) => throw UnimplementedError());
 
 void main() async {
@@ -35,11 +35,7 @@ void main() async {
     // It's the user's first time. Initialize with default todos and save to Firestore.
     final defaultTodos = TodoList().build();
     await createUserDocumentWithMerge(defaultTodos);
-  } else {
-    // User is returning. Load todos from Firestore.
-    final todosFromFirestore = await loadTodosFromFirestore();
-    TodoList().initializeWithFirestoreTodos(todosFromFirestore);
-  }
+  } 
   runApp(const ProviderScope(child: MyApp()));
 }
 class MyApp extends StatelessWidget {
