@@ -26,7 +26,7 @@ Future<void> createUserDocumentWithMerge(List<Todo> todos) async {
 //for some reason when user is anonymous it is not able to load the todos from firestore
 Future<List<Todo>> loadTodosFromFirestore() async {
   final user = FirebaseAuth.instance.currentUser;
-  if (user != null && !user.isAnonymous) {
+  if (user != null) { // Removed the check for !user.isAnonymous
     final docSnapshot = await FirebaseFirestore.instance.collection('Users').doc(user.uid).get();
     if (docSnapshot.exists && docSnapshot.data()!.containsKey('todos')) {
       List<dynamic> todosData = docSnapshot.data()!['todos'];

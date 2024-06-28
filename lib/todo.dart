@@ -34,12 +34,12 @@ Map<String, dynamic> toJson() {
   }
 }
 
-/// An object that controls a list of [Todo].
+
 class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
     TodoList() : super(const AsyncValue.loading()) {
-    _loadTodos();
+    loadTodos();
   }
-    Future<void> _loadTodos() async {
+    Future<void> loadTodos() async {
     try {
       final todos = await loadTodosFromFirestore();
       state = AsyncValue.data(todos);
@@ -59,7 +59,7 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
       await docRef.update({
         'todos': FieldValue.arrayUnion([newTodo.toJson()]),
       });
-      _loadTodos();
+      loadTodos();
     }
   }
 
@@ -80,7 +80,7 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
           return todoData;
         }).toList();
         await docRef.update({'todos': updatedTodos});
-        _loadTodos();
+        loadTodos();
       }
     }
   }
@@ -102,7 +102,7 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
           return todoData;
         }).toList();
         await docRef.update({'todos': updatedTodos});
-        _loadTodos();
+        loadTodos();
       }
     }
   }
@@ -114,7 +114,7 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
       await docRef.update({
         'todos': FieldValue.arrayRemove([target.toJson()]),
       });
-      _loadTodos();
+      loadTodos();
     }
   }
 

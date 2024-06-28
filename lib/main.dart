@@ -32,10 +32,13 @@ void main() async {
   }
   final isFirstTime = await checkIfFirstTime();
   if (isFirstTime) {
-    // It's the user's first time. Initialize with default todos and save to Firestore.
     final defaultTodos = TodoList().build();
     await createUserDocumentWithMerge(defaultTodos);
-  } 
+  } else {
+     await loadTodosFromFirestore();
+    
+
+  }
   runApp(const ProviderScope(child: MyApp()));
 }
 class MyApp extends StatelessWidget {
