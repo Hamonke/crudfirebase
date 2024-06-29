@@ -2,7 +2,7 @@
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:riverpod/riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'firebase_functions.dart';
+//import 'firebase_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -41,8 +41,26 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
   }
     Future<void> loadTodos() async {
     try {
-      final todos = await loadTodosFromFirestore();
-      state = AsyncValue.data(todos);
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) { // Removed the check for !user.isAnonymous
+        final docSnapshot = await FirebaseFirestore.instance.collection('Users').doc(user.uid).get();
+        if (docSnapshot.exists && docSnapshot.data()!.containsKey('todos')) {
+          List<dynamic> todosData = docSnapshot.data()!['todos'];
+          final todos = todosData.map((todoData) => Todo(
+            id: todoData['id'],
+            description: todoData['description'],
+            completed: todoData['completed'],
+          )).toList();
+          // Update the state with the new list of todos
+          state = AsyncValue.data(todos);
+        } else {
+          // If no todos are found, set state to an empty list
+          state = const AsyncValue.data([]);
+        }
+      } else {
+        // Handle the case where the user is null
+        state = const AsyncValue.error("User not found", StackTrace.empty);
+      }
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.empty);
     }
