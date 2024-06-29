@@ -14,6 +14,7 @@ import 'todoitem.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'firebase_functions.dart';
 import 'todolistfilter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -27,9 +28,13 @@ final currentTodo = Provider<Todo>((ref) => throw UnimplementedError());
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); 
-   if (FirebaseAuth.instance.currentUser == null) {
+  final prefs = await SharedPreferences.getInstance();
+  final isSignedInBefore = prefs.getBool('isSignedInBefore') ?? false;
+  if (!isSignedInBefore && FirebaseAuth.instance.currentUser == null) {
     await FirebaseAuth.instance.signInAnonymously();
+    await prefs.setBool('isSignedInBefore', true);
   }
+
   final isFirstTime = await checkIfFirstTime();
   if (isFirstTime) {
     final defaultTodos = TodoList().build();
@@ -68,7 +73,7 @@ class Home extends HookConsumerWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>   const SigningInScreen()),
+              MaterialPageRoute(builder: (context) =>    const SigningInScreen()),
             );
           },
           child: const Icon(Icons.login),
