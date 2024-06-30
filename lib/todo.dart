@@ -65,6 +65,13 @@ class TodoList extends StateNotifier<AsyncValue<List<Todo>>> {
       state = AsyncValue.error(e, StackTrace.empty);
     }
   }
+  Future<void> resetTodos() async {
+  state = const AsyncValue.data([
+          Todo(id: 'todo-0', description: 'Buy cookies'),
+          Todo(id: 'todo-1', description: 'Star Riverpod'),
+          Todo(id: 'todo-2', description: 'Have a walk'),
+       ]);
+}
 Future<void> add(String description) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) {

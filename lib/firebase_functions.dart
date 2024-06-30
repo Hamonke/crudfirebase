@@ -23,7 +23,6 @@ Future<void> createUserDocumentWithMerge(List<Todo> todos) async {
 
 
 
-//for some reason when user is anonymous it is not able to load the todos from firestore
 Future<List<Todo>> loadTodosFromFirestore() async {
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) { // Removed the check for !user.isAnonymous
@@ -47,3 +46,4 @@ Future<bool> checkIfFirstTime() async {
   }
   return true; 
 }
+

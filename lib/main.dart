@@ -16,12 +16,14 @@ import 'firebase_functions.dart';
 import 'todolistfilter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 
 
 final addTodoKey = UniqueKey();
 final activeFilterKey = UniqueKey();
 final completedFilterKey = UniqueKey();
 final allFilterKey = UniqueKey();
+//in main.dart
 final todoListProvider = StateNotifierProvider<TodoList, AsyncValue<List<Todo>>>((ref) => TodoList());
 final currentTodo = Provider<Todo>((ref) => throw UnimplementedError());
 
@@ -51,8 +53,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Home(),
+    return  MaterialApp(
+      home: const Home(),
+      routes: {
+        '/sign-in': (context) => const SigningInScreen(),
+        // Define '/profile' route here, assuming you have a ProfileScreen widget
+        '/profile': (context) =>   ProfileScreen(appBar: AppBar(leading: const BackButton(), title: const Text('Sign In')),), 
+        // Adjust this according to your actual ProfileScreen widget
+      },
     );
   }
 }
